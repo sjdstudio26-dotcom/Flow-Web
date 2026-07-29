@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowCraft — Правила сервера</title>
+<style>
+  :root{
+    --bg: #0d0b16;
+    --panel: #17131f;
+    --panel-2: #1c1729;
+    --border: #2c2440;
+    --purple: #8b5cf6;
+    --purple-dim: #5b3fa0;
+    --pink: #d946a8;
+    --text: #e9e6f2;
+    --text-dim: #9d94b5;
+    --text-faint: #6b6284;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139,92,246,0.18), transparent),
+                var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Starfield accent */
+  .stars{
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, rgba(217,70,168,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 75% 15%, rgba(139,92,246,0.5), transparent),
+      radial-gradient(1.5px 1.5px at 60% 70%, rgba(217,70,168,0.4), transparent),
+      radial-gradient(2px 2px at 90% 60%, rgba(139,92,246,0.4), transparent),
+      radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.3), transparent);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(13,11,22,0.85);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    text-decoration:none;
+    font-size: 15px;
+  }
+  .brand-badge{
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 0 18px rgba(139,92,246,0.5);
+    flex-shrink:0;
+  }
+  .brand-badge svg{ width:16px; height:16px; }
+
+  .nav-links{
+    display:flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar{ display:none; }
+  .nav-links a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space:nowrap;
+    transition: all .15s ease;
+  }
+  .nav-links a:hover{
+    color: var(--text);
+    background: var(--panel-2);
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding: 88px 0 48px;
+    text-align:center;
+  }
+  .logo-tile{
+    width: 108px;
+    height: 108px;
+    margin: 0 auto 32px;
+    border-radius: 26px;
+    background: linear-gradient(150deg, #4c1d95 0%, #1e1338 60%, #2a1245 100%);
+    border: 1px solid rgba(139,92,246,0.4);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 0 60px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+    position: relative;
+    overflow:hidden;
+  }
+  .logo-tile::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 25%, rgba(217,70,168,0.9), transparent),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 80% 20%, rgba(139,92,246,0.9), transparent),
+      radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.5), transparent);
+  }
+  .logo-tile b{
+    font-size: 15px;
+    letter-spacing: 1px;
+    line-height:1.15;
+    color:#fff;
+    z-index:1;
+  }
+  .logo-tile span{
+    font-size: 6.5px;
+    letter-spacing: 1.5px;
+    color: rgba(233,230,242,0.65);
+    margin-top:4px;
+    z-index:1;
+    text-transform: uppercase;
+  }
+
+  h1.title{
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 800;
+    margin: 0 0 12px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle{
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 18px;
+    margin: 0 0 32px;
+  }
+
+  .meta-card{
+    display:inline-block;
+    text-align:left;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 26px;
+    margin-bottom: 40px;
+  }
+  .meta-card div{ font-size: 14px; margin: 4px 0; color: var(--text-dim); }
+  .meta-card b{ color: var(--text); }
+
+  .welcome{
+    text-align:left;
+    background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(217,70,168,0.06));
+    border-left: 3px solid var(--purple);
+    border-radius: 12px;
+    padding: 26px 28px;
+  }
+  .welcome h2{
+    margin: 0 0 12px;
+    font-size: 19px;
+    color: var(--text);
+  }
+  .welcome p{ color: var(--text-dim); margin: 8px 0; font-size: 15px; }
+  .welcome .cta{ color: var(--purple); font-weight: 700; margin-top: 14px; }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding-top: 64px; scroll-margin-top: 90px; }
+
+  .section-head{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .section-num{
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--purple);
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink:0;
+  }
+  h2.section-title{
+    font-size: 26px;
+    margin: 0;
+    font-weight: 800;
+  }
+  .section-rule{
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple), transparent);
+    margin-bottom: 28px;
+  }
+
+  /* rule cards (1.1 etc) */
+  .rule-card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    transition: border-color .15s ease;
+  }
+  .rule-card:hover{ border-color: var(--purple-dim); }
+  .rule-card h3{
+    margin: 0 0 8px;
+    font-size: 15.5px;
+    color: var(--text);
+    display:flex;
+    gap: 10px;
+    align-items:baseline;
+  }
+  .rule-card h3 .num{ color: var(--purple); font-weight: 800; }
+  .rule-card p{
+    margin:0;
+    color: var(--text-dim);
+    font-size: 14.5px;
+  }
+  .rule-card em{
+    color: var(--text-faint);
+    font-style: italic;
+    display:block;
+    margin-top: 8px;
+    font-size: 13.5px;
+  }
+
+  /* tables */
+  .table-wrap{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  table{
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th{
+    background: linear-gradient(90deg, var(--purple-dim), #7c3aed);
+    color: #fff;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 12.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  thead th:first-child{ width: 56px; text-align:center; }
+  tbody td{
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 14.5px;
+    vertical-align: top;
+  }
+  tbody td:first-child{
+    text-align:center;
+    color: var(--purple);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  tbody tr:hover{ background: rgba(139,92,246,0.05); }
+  tbody td.rule-text{ color: var(--text); }
+  tbody td.rule-text small{ color: var(--text-faint); display:block; margin-top:4px; }
+
+  .badge{
+    display:inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space:nowrap;
+    border: 1px solid transparent;
+  }
+  .badge::before{
+    content:"";
+    display:inline-block;
+    width:7px; height:7px;
+    border-radius:50%;
+    margin-right:7px;
+    vertical-align: middle;
+  }
+  .b-warn{ background: rgba(34,197,94,0.12); color: #4ade80; border-color: rgba(34,197,94,0.3); }
+  .b-warn::before{ background: var(--green); }
+  .b-mute{ background: rgba(234,179,8,0.12); color: #facc15; border-color: rgba(234,179,8,0.3); }
+  .b-mute::before{ background: var(--yellow); }
+  .b-ban{ background: rgba(249,115,22,0.12); color: #fb923c; border-color: rgba(249,115,22,0.3); }
+  .b-ban::before{ background: var(--orange); }
+  .b-perma{ background: rgba(239,68,68,0.14); color: #f87171; border-color: rgba(239,68,68,0.35); }
+  .b-perma::before{ background: var(--red); }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    align-items:center;
+  }
+
+  /* moderation icon cards */
+  .icon-card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+  }
+  .icon-card h3{
+    margin: 0 0 10px;
+    font-size: 16px;
+    color: var(--purple);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .icon-card h3 svg{ width:18px; height:18px; flex-shrink:0; }
+  .icon-card p{ margin:0; color: var(--text-dim); font-size: 14.5px; }
+  .icon-card ul{ margin: 8px 0 0; padding-left: 20px; color: var(--text-dim); font-size: 14.5px; }
+  .icon-card li{ margin-bottom: 4px; }
+
+  .info-box{
+    border: 1px dashed var(--purple-dim);
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-top: 24px;
+    background: rgba(139,92,246,0.04);
+  }
+  .info-box h3{
+    margin:0 0 16px;
+    font-size: 16px;
+    color: var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .info-box h4{
+    margin: 16px 0 8px;
+    font-size: 14.5px;
+    color: var(--purple);
+  }
+  .info-box ol{
+    margin:0;
+    padding-left: 20px;
+    color: var(--text-dim);
+    font-size: 14.5px;
+  }
+  .info-box li{ margin-bottom: 6px; }
+
+  /* footer */
+  footer{
+    text-align:center;
+    margin-top: 80px;
+    padding: 40px 26px;
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(217,70,168,0.05));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  footer h3{ font-size: 20px; margin: 0 0 14px; }
+  footer p{ color: var(--text-dim); font-size: 14.5px; margin: 6px 0; }
+  footer .cta{ color: var(--purple); font-weight: 700; margin-top: 14px; }
+  footer .team{ color: var(--pink); font-weight: 800; margin-top: 6px; font-size: 16px; }
+
+  .page-footer{
+    text-align:center;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 640px){
+    .wrap{ padding: 0 16px 60px; }
+
+    .nav-inner{ padding: 10px 14px; gap: 10px; }
+    .brand{ font-size: 13px; gap: 8px; }
+    .brand-badge{ width: 26px; height: 26px; }
+    .brand-badge svg{ width: 14px; height: 14px; }
+    .nav-links a{ font-size: 12px; padding: 7px 9px; }
+
+    .hero{ padding: 48px 0 32px; }
+    .logo-tile{ width: 88px; height: 88px; margin-bottom: 24px; }
+    .logo-tile b{ font-size: 12.5px; }
+    .logo-tile span{ font-size: 5.5px; }
+    h1.title{ font-size: 30px; }
+    .subtitle{ font-size: 15px; margin-bottom: 24px; }
+
+    .meta-card{ display:block; width: 100%; padding: 16px 18px; margin-bottom: 28px; }
+    .meta-card div{ font-size: 13px; }
+
+    .welcome{ padding: 20px; }
+    .welcome h2{ font-size: 17px; }
+    .welcome p{ font-size: 14px; }
+
+    section{ padding-top: 44px; scroll-margin-top: 76px; }
+    .section-num{ width: 36px; height: 36px; font-size: 14px; }
+    h2.section-title{ font-size: 21px; }
+
+    .rule-card, .icon-card, .info-box{ padding: 16px 18px; }
+    .rule-card h3{ font-size: 14.5px; flex-wrap: wrap; }
+    .rule-card p, .icon-card p, .icon-card ul, .info-box, .info-box ol{ font-size: 13.5px; }
+
+    .legend{ gap: 8px; }
+    .legend .badge{ font-size: 11.5px; padding: 4px 10px; }
+
+    /* Tables become stacked cards on mobile */
+    .table-wrap{ background: none; border: none; border-radius: 0; }
+    table, thead, tbody, tr, th, td{ display: block; width: 100%; }
+    thead{ display: none; }
+    tbody tr{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    tbody td{ border-top: none; padding: 4px 0; }
+    tbody td:first-child{
+      text-align: left;
+      font-size: 12px;
+      color: var(--purple-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+    tbody td.rule-text{ font-size: 14px; padding-bottom: 10px; }
+    tbody td:last-child{ padding-top: 4px; }
+    tbody tr:hover{ background: var(--panel); }
+
+    footer{ padding: 28px 18px; margin-top: 56px; }
+    footer h3{ font-size: 17px; }
+    footer p{ font-size: 13.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 22V12M12 12L20 7M12 12L4 7" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      FLOWCRAFT
+    </a>
+    <div class="nav-links">
+      <a href="#sec1">Основные</a>
+      <a href="#sec2">Чат</a>
+      <a href="#sec3">Аккаунт</a>
+      <a href="#sec4">Игровые</a>
+      <a href="#sec5">Модерация</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+
+  <section class="hero">
+    <div class="logo-tile">
+      <b>FLOW<br>CRAFT</b>
+      <span>твой уютный мир!</span>
+    </div>
+    <h1 class="title">FLOWCRAFT</h1>
+    <p class="subtitle">Официальный свод правил сервера</p>
+
+    <div class="meta-card">
+      <div><b>Версия документа:</b> 1.0</div>
+      <div><b>Последнее обновление:</b> 2026 г.</div>
+      <div><b>Статус:</b> Действующий регламент</div>
+    </div>
+
+    <div class="welcome">
+      <h2>Добро пожаловать на FlowCraft!</h2>
+      <p>Данный документ содержит полный и актуальный свод правил нашего игрового проекта.</p>
+      <p>Незнание правил не освобождает от ответственности. Заходя на сервер, вы автоматически соглашаетесь соблюдать все регламенты и уважать участников сообщества.</p>
+      <p class="cta">Желаем приятной и комфортной игры!</p>
+    </div>
+  </section>
+
+  <!-- 1. ОСНОВНЫЕ ПРАВИЛА -->
+  <section id="sec1">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <h2 class="section-title">Основные правила</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.1</span> Согласие с правилами</h3>
+      <p>Заходя на сервер, игрок автоматически принимает настоящий свод правил. Незнание правил не освобождает от ответственности за их нарушение.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.2</span> Возврат средств</h3>
+      <p>Возврат денежных средств за приобретённые услуги невозможен. Все покупки являются добровольным пожертвованием на развитие и поддержку проекта.</p>
+      <em>Проверяйте правильность написания ника при покупке доната.</em>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.3</span> Обжалование наказаний</h3>
+      <p>Игрок имеет право подать апелляцию или жалобу на выданное наказание в течение 3 дней после его получения.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.4</span> Потеря имущества</h3>
+      <p>Администрация не обязана возвращать игровые предметы или ресурсы, потерянные вследствие технических сбоев, лагов или игровых ситуаций.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.5</span> Изменение правил</h3>
+      <p>Администрация оставляет за собой право изменять или дополнять настоящий свод правил без предварительного уведомления игроков.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.6</span> Срок выдачи наказаний</h3>
+      <p>Наказание за нарушение должно быть выдано модератором не позднее чем через 30 минут после момента фиксации нарушения. Правило не распространяется на администрацию.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">1.7</span> Доказательства нарушений</h3>
+      <p>Любой игрок или донатер, имеющий возможность выдавать наказания, обязан хранить фото/видео доказательства нарушений в течение 7 дней.</p>
+    </div>
+  </section>
+
+  <!-- 2. ПРАВИЛА ЧАТА -->
+  <section id="sec2">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <h2 class="section-title">Правила чата</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>№</th><th>Нарушение</th><th>Наказание</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2.1</td><td class="rule-text">Угрозы выдачей наказания, снятием доната, администрацией в сторону игрока</td><td><span class="badge b-mute">Мут 5–20 мин</span></td></tr>
+          <tr><td>2.2</td><td class="rule-text">Реклама любого сервера, магазина, ПО, ютуберов</td><td><span class="badge b-mute">Мут 60–200 мин</span></td></tr>
+          <tr><td>2.3</td><td class="rule-text">Пропаганда или агитация, возбуждающая социальную, расовую, национальную или религиозную ненависть и вражду</td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+          <tr><td>2.4</td><td class="rule-text">Угрозы в сторону игрока под предлогом распространения личной информации, номера телефона, докса<small>При повторении — бан 10 дней</small></td><td><span class="badge b-mute">Мут 10–30 мин</span></td></tr>
+          <tr><td>2.5</td><td class="rule-text">Оскорбления/унизительные высказывания в сторону игрока или персонала проекта</td><td><span class="badge b-mute">Мут 20/120 мин</span></td></tr>
+          <tr><td>2.6</td><td class="rule-text">Попрошайничество ресурсов или любых других игровых ценностей</td><td><span class="badge b-mute">Мут 15 мин</span></td></tr>
+          <tr><td>2.7</td><td class="rule-text">Оскорбления в сторону проекта</td><td><span class="badge b-ban">Бан 7 дней</span></td></tr>
+          <tr><td>2.8</td><td class="rule-text">Флуд, многократное повторение сообщений/символов (от 7 символов и выше, включая фразы вида «Кто напишет первый «+» в чат, получит 10 монет»)</td><td><span class="badge b-mute">Мут 10–30 мин</span></td></tr>
+          <tr><td>2.9</td><td class="rule-text">Заведомо ложные показания о предстоящих технических событиях на проекте</td><td><span class="badge b-mute">Мут 15 мин</span></td></tr>
+          <tr><td>2.10</td><td class="rule-text">Оскорбление/упоминание родных в оскорбительной форме</td><td><span class="badge b-ban">Мут 120 мин / бан 7 дней</span></td></tr>
+          <tr><td>2.11</td><td class="rule-text">Афиширование багов, дюпов, схем<small>При повторении — бан 3 дня</small></td><td><span class="badge b-mute">Мут 15 мин</span></td></tr>
+          <tr><td>2.12</td><td class="rule-text">Многократное нарушение чатовых правил (от 5 наказаний за последние 3 дня)</td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. АККАУНТ -->
+  <section id="sec3">
+    <div class="section-head">
+      <div class="section-num">3</div>
+      <h2 class="section-title">Правила аккаунта</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <div class="rule-card">
+      <h3><span class="num">3.1</span> Безопасность и передача аккаунта</h3>
+      <p>Игрок несёт полную ответственность за безопасность своего аккаунта. Передача, продажа, передача во временное пользование или покупка аккаунтов категорически запрещена. При выявлении факта передачи аккаунт блокируется навсегда.</p>
+    </div>
+
+    <div class="rule-card">
+      <h3><span class="num">3.2</span> Никнеймы и скины</h3>
+      <p>Запрещено использовать никнеймы и скины, содержащие нецензурную лексику, оскорбления, эротический подтекст, нацистскую или экстремистскую символику, а также выдающие себя за администрацию сервера.</p>
+    </div>
+  </section>
+
+  <!-- 4. ИГРОВЫЕ ПРАВИЛА -->
+  <section id="sec4">
+    <div class="section-head">
+      <div class="section-num">4</div>
+      <h2 class="section-title">Игровые правила</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <div class="legend">
+      <span class="badge b-warn">Предупреждение</span>
+      <span class="badge b-mute">Мут</span>
+      <span class="badge b-ban">Временный бан</span>
+      <span class="badge b-perma">Перманентный бан</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>№</th><th>Игровое нарушение</th><th>Наказание</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>4.1</td><td class="rule-text">Строительство порнографических и нецензурных слов и фигур</td><td><span class="badge b-ban">Снос + бан 5 дней</span></td></tr>
+          <tr><td>4.2</td><td class="rule-text">Строительство объектов, нагружающих сервер</td><td><span class="badge b-ban">Бан 15 дней</span></td></tr>
+          <tr><td>4.3</td><td class="rule-text">Использование уязвимостей, багов, а также дюпов</td><td><span class="badge b-ban">Бан 7 дней</span></td></tr>
+          <tr><td>4.4</td><td class="rule-text">Продажа или попытка взлома/взлом<small>Для переноса привилегии нужен чек или доказательство владения аккаунтом</small></td><td><span class="badge b-perma">Бан навсегда</span></td></tr>
+          <tr><td>4.5</td><td class="rule-text">Торговля внутриигровыми ценностями за реальную валюту<small>Исключение — торговля за донат на сервере</small></td><td><span class="badge b-ban">Обнуление + бан 30 дней</span></td></tr>
+          <tr><td>4.6</td><td class="rule-text">Подстрекательство игроков на нарушения правил</td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+          <tr><td>4.7</td><td class="rule-text">Гриферство, а также PvP с использованием донатных возможностей</td><td><span class="badge b-warn">Пред. + бан 5 дней</span></td></tr>
+          <tr><td>4.8</td><td class="rule-text">Обход наказания<small>Нарушение с того же IP на новом аккаунте наказуемо</small></td><td><span class="badge b-ban">Бан по IP ×2 срока</span></td></tr>
+          <tr><td>4.9</td><td class="rule-text">Использование посторонних ПО, читов и других сторонних программ</td><td><span class="badge b-ban">Бан 20 дней</span></td></tr>
+          <tr><td>4.10</td><td class="rule-text">Некорректная выдача наказания<small>При многократном нарушении (более 5) — снятие доната</small></td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+          <tr><td>4.11</td><td class="rule-text">Нецензурная выдача наказания<small>При многократном нарушении (более 3) — снятие доната</small></td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+          <tr><td>4.12</td><td class="rule-text">Отсутствие доказательств при выдаче наказания (скриншот/видеозапись)</td><td><span class="badge b-mute">Наказание некорректно</span></td></tr>
+          <tr><td>4.13</td><td class="rule-text">Установка невидимых, оскорбительных, порнографических, а также 4D-скинов</td><td><span class="badge b-ban">Бан 2 дня</span></td></tr>
+          <tr><td>4.14</td><td class="rule-text">Телепортация игрока к себе без причины</td><td><span class="badge b-ban">Бан 2 дня</span></td></tr>
+          <tr><td>4.15</td><td class="rule-text">Распространение нацизма/фашизма</td><td><span class="badge b-ban">Бан 10 дней + снос</span></td></tr>
+          <tr><td>4.16</td><td class="rule-text">Выдача себя за члена модерации/администрации проекта, включая ютуберов и тиктокеров проекта</td><td><span class="badge b-ban">Бан 10 дней</span></td></tr>
+          <tr><td>4.17</td><td class="rule-text">Создание помех работе администрации/модерации</td><td><span class="badge b-warn">Пред. / бан 3 часа</span></td></tr>
+          <tr><td>4.18</td><td class="rule-text">Помощь, укрывательство нарушителя или содействие его неправомерным действиям</td><td><span class="badge b-ban">Бан 3 дня</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. МОДЕРАЦИЯ -->
+  <section id="sec5">
+    <div class="section-head">
+      <div class="section-num">5</div>
+      <h2 class="section-title">Правила для модерации</h2>
+    </div>
+    <div class="section-rule"></div>
+
+    <div class="icon-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8"><path d="M12 2L4 6V12C4 16.5 7.5 20.4 12 22C16.5 20.4 20 16.5 20 12V6L12 2Z" stroke-linejoin="round"/></svg>
+        Доказательства нарушений
+      </h3>
+      <p>Модератор обязан иметь и хранить чёткие доказательства каждого выданного нарушения:</p>
+      <ul>
+        <li><b style="color:var(--text)">Скриншот</b> — для нарушений в текстовом чате.</li>
+        <li><b style="color:var(--text)">Видеофиксация</b> — для читов, гриферства и игровых нарушений.</li>
+      </ul>
+    </div>
+
+    <div class="icon-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8"><path d="M12 3V21M12 3L6 7M12 3L18 7M4 7L2 12L4 15C5.5 16 7.5 16 9 15L11 12L9 9C7.5 8 5.5 8 4 9L4 7Z" stroke-linejoin="round" stroke-linecap="round"/><path d="M20 7L18 12L20 15C21.5 16 23.5 16 25 15" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        Взаимодействие со старшей администрацией
+      </h3>
+      <p>Категорически запрещается отменять, снижать или снимать наказание, выданное представителем администрации более высокой должности.</p>
+    </div>
+
+    <div class="icon-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8"><path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.5 3.4 14.9 4.1 16.1L3 21L8 19.9C9.1 20.6 10.5 21 12 21Z" stroke-linejoin="round"/></svg>
+        Уважительное общение
+      </h3>
+      <p>Модератор является лицом проекта и обязан соблюдать сдержанность, вежливость и уважительный тон при общении с любыми игроками — в ВКонтакте, Telegram, в игре и личных сообщениях.</p>
+    </div>
+
+    <div class="icon-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2" stroke-linejoin="round"/><path d="M8 8H16M8 12H16M8 16H12" stroke-linecap="round"/></svg>
+        Отчётность и журналы
+      </h3>
+      <p>Все наказания и модераторские действия должны своевременно заноситься в официальный журнал администрации.</p>
+    </div>
+
+    <div class="info-box">
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.8"><path d="M9 18H15M10 21H14M12 3C8.5 3 6 5.5 6 9C6 11.5 7.5 13 8.5 14C9 14.5 9 15 9 15.5V16H15V15.5C15 15 15 14.5 15.5 14C16.5 13 18 11.5 18 9C18 5.5 15.5 3 12 3Z" stroke-linejoin="round"/></svg>
+        Полезная информация
+      </h3>
+
+      <h4>Как подать жалобу:</h4>
+      <ol>
+        <li>Подробно опишите сложившуюся ситуацию.</li>
+        <li>Прикрепите скриншоты или видеодоказательства.</li>
+        <li>Укажите точный никнейм нарушителя.</li>
+        <li>Дождитесь ответа официального представителя администрации.</li>
+      </ol>
+
+      <h4>Как подать апелляцию:</h4>
+      <ol>
+        <li>Укажите причину и дату выданного наказания.</li>
+        <li>Прикрепите аргументы и доказательства своей невиновности.</li>
+        <li>Ожидайте решения старшей администрации.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <h3>Спасибо, что выбрали FlowCraft!</h3>
+    <p>Мы стремимся сделать сервер комфортным, честным и интересным для каждого игрока.</p>
+    <p>Соблюдайте правила, уважайте других участников и помогайте развивать наш уютный мир!</p>
+    <p class="cta">Желаем приятной игры!</p>
+    <p class="team">Команда FlowCraft 💜</p>
+  </footer>
+
+  <div class="page-footer">FlowCraft © 2026</div>
+
+</div>
+</body>
+</html>
